@@ -44,7 +44,10 @@ app.post('/login', async (req, res) => {
                 httpOnly: true,
                 secure: true,
                 sameSite: 'none'
-            }).json('ok');
+            }).json({
+                id: userDoc._id,
+                username,
+            });
 
         })
     } else {
