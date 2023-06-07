@@ -23,8 +23,6 @@ app.use(express.json())
 app.use(cookieParser());
 app.use('/uploads', express.static(__dirname + '/uploads'));
 
-// use should not put dbURL here
-// it's not safe at all 
 mongoose.connect('mongodb+srv://muditert34:PoU9KJxkXBmt0k6O@cluster0.qrlonzo.mongodb.net/?retryWrites=true&w=majority')
 
 app.post('/register', async (req, res) => {
