@@ -23,6 +23,8 @@ app.use(express.json())
 app.use(cookieParser());
 app.use('/uploads', express.static(__dirname + '/uploads'));
 
+// use should not put dbURL here
+// it's not safe at all 
 mongoose.connect('mongodb+srv://muditert34:PoU9KJxkXBmt0k6O@cluster0.qrlonzo.mongodb.net/?retryWrites=true&w=majority')
 
 app.post('/register', async (req, res) => {
@@ -109,6 +111,23 @@ app.get('/post/:id', async (req, res) => {
     const postDoc = await Post.findById(id).populate('author', ['username']);
     res.json(postDoc);
 })
+
+// delete---------------------------------------------------------------------------------
+app.delete('/post/:postid', async (req, res) => {
+    const { postid } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(postid)) return res.status(404).send(`No post with id: ${postid}`);
+
+    const { token } = req.cookies;
+    jwt.verify(token, secret, {}, async (err, info) => {
+        if (err) throw err;
+        const postDoc = await Post.findById(postid);
+        const isAuthor = JSON.stringify(postDoc.author) === JSON.stringify(info.id);
+
+        if (!isAuthor) return res.status(400).json('you are not the author');
+        await Post.findByIdAndRemove(id);
+        res.json({ message: `Post with id: ${postid} deleted successfully.` });
+    });
+});
 
 app.put('/post', uploadMiddleware.single('file'), async (req, res) => {
     let newPath = null;
